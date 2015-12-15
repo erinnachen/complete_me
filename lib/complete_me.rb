@@ -25,5 +25,10 @@ class CompleteMe
     end
     node
   end
-  
+
+  def populate(dictionary)
+    dictionary.split("\n").each do |word|
+      insert(word)
+    end
+  end
 end

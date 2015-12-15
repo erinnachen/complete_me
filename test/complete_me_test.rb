@@ -75,4 +75,12 @@ class CompleteMeTest < Minitest::Test
     assert_equal ["dog","dot","doppler","docile"].sort, cm.suggest("d").sort
   end
 
+  def test_dictionary_load_simple_string
+    cm = CompleteMe.new
+    dictionary = "apple\napp\nafter"
+    cm.populate(dictionary)
+    assert_equal ["apple", "app", "after"].sort, cm.suggest("").sort
+    assert_equal 3, cm.count
+  end
+
 end
