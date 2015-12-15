@@ -32,4 +32,47 @@ class CompleteMeTest < Minitest::Test
   end
 
 
+  def test_get_words_returns_all_words_on_a_branch_that_has_multiple_words_along_it
+    cm = CompleteMe.new
+    words = ["bat","batch","batches", "batchesesss", "batchelor"]
+    words.each do |word|
+      cm.insert(word)
+    end
+    assert_equal words.sort, cm.suggest("bat").sort
+    assert_equal ["batch","batches", "batchesesss", "batchelor"].sort, cm.suggest("batc").sort
+    assert_equal ["batches", "batchesesss"], cm.suggest("batches")
+  end
+
+  def test_suggest_on_a_single_branch_with_multiple_branches
+    cm = CompleteMe.new
+    words = ["dog","dot","doppler","docile","docks"]
+    words.each do |word|
+      cm.insert(word)
+    end
+    assert_equal words.sort, cm.suggest("d").sort
+    assert_equal words.sort, cm.suggest("do").sort
+    assert_equal ["docile", "docks"], cm.suggest("doc").sort
+    assert_equal ["doppler"], cm.suggest("dop")
+  end
+
+  def test_suggest_gets_all_words_in_the_trie_if_passed_empty_string
+    cm = CompleteMe.new
+    words = ["dog","dot","doppler","docile","docks"]
+    words.each do |word|
+      cm.insert(word)
+    end
+    assert_equal words.sort, cm.suggest("").sort
+  end
+
+  def test_get_words_returns_all_words_on_multiple_overlapping_branches
+    cm = CompleteMe.new
+    words = ["apple", "app", "after","bat", "batch", "baby","buns","dog","dot","doppler","docile"]
+    words.each do |word|
+      cm.insert(word)
+    end
+    assert_equal ["apple", "app", "after"].sort, cm.suggest("a").sort
+    assert_equal ["bat", "batch", "baby","buns"].sort, cm.suggest("b").sort
+    assert_equal ["dog","dot","doppler","docile"].sort, cm.suggest("d").sort
+  end
+
 end
