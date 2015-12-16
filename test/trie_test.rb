@@ -1,6 +1,6 @@
 require_relative 'test_helper'
 require 'minitest'
-require_relative '../lib/node'
+require_relative '../lib/trie'
 
 class NodeTest < Minitest::Test
   def test_new_node_has_no_value_and_no_paths

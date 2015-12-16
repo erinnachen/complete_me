@@ -1,4 +1,4 @@
-class Node
+class Trie
   attr_reader :paths, :value
   attr_accessor :weights
   def initialize
