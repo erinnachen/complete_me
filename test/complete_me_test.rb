@@ -1,3 +1,4 @@
+require_relative 'test_helper'
 require 'minitest'
 require_relative '../lib/complete_me'
 
