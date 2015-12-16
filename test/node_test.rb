@@ -124,7 +124,6 @@ class NodeTest < Minitest::Test
     words.each do |word|
       n.insert(word.chars)
     end
-
     n.select("doppler")
     n.select("doppler")
     word_node = n.traverse_to("doppler".chars)

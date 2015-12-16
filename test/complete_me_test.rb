@@ -83,5 +83,16 @@ class CompleteMeTest < Minitest::Test
     assert_equal ["apple", "app", "after"].sort, cm.suggest("").sort
     assert_equal 3, cm.count
   end
+  
+  def test_select_words_on_small_sample
+    cm = CompleteMe.new
+    words = ["apple", "app", "after","bat", "batch", "baby","buns","dog","dot","doppler","docile"]
+    words.each do |word|
+      cm.insert(word)
+    end
+    cm.select("d","doppler")
+    cm.select("d","doppler")
+    assert_equal "doppler", cm.suggest("d").first
+  end
 
 end

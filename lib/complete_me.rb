@@ -34,7 +34,7 @@ class CompleteMe
 
   def select(substring, word_to_select)
     substring_node = find_node_to_search(substring)
-    substring_node.select(word_to_select[substring.length..-1])
+    root.select(word_to_select)
     substring_node.get_words
   end
 end
