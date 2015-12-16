@@ -70,11 +70,12 @@ class NodeTest < Minitest::Test
     assert n.paths["d"].paths["o"].paths["g"].is_word?
   end
 
-  def test_get_words_returns_the_word_for_a_single_insertion
+  def test_get_words_and_weights_returns_an_array_of_arrays_containing_words_and_their_weights
     n = Node.new
     word_arr = "dog".chars
     n.insert(word_arr)
-    assert_equal ["dog"], n.get_words
+    n.insert("cat".chars)
+    assert_equal [["dog", 0],["cat",0]], n.get_words_and_weights
   end
 
   def test_get_words_returns_all_words_on_an_overlapping_branch
@@ -102,6 +103,56 @@ class NodeTest < Minitest::Test
       n.insert(word.chars)
     end
     assert_equal words.sort, n.get_words.sort
+  end
+
+  def test_traverse_to_a_single_word
+    n = Node.new
+    words = ["apple", "app", "after","bat", "batch", "baby","buns","dog","dot","doppler","docile"]
+    words.each do |word|
+      n.insert(word.chars)
+    end
+    word_node = n.traverse_to("doppler".chars)
+    assert word_node.is_word?
+    assert_equal "doppler", word_node.value
+    assert_equal 0, word_node.weight
+  end
+
+  def test_change_weight_on_specific_word
+    n= Node.new
+    words = ["apple", "app", "after","bat", "batch", "baby","buns","dog","dot","doppler","docile"]
+    words.each do |word|
+      n.insert(word.chars)
+    end
+
+    n.select("doppler")
+    n.select("doppler")
+    word_node = n.traverse_to("doppler".chars)
+    assert_equal "doppler", word_node.value
+    assert_equal 2, word_node.weight
+  end
+
+  def test_get_words_returns_words_sorted_by_weight_two_elements
+    n= Node.new
+    words = ["apple", "dog"]
+    words.each do |word|
+      n.insert(word.chars)
+    end
+    assert_equal ["apple","dog"], n.get_words
+    n.select("dog")
+    n.select("dog")
+    assert_equal ["dog","apple"], n.get_words
+  end
+
+  def test_get_words_returns_words_sorted_by_weight_three_elements
+    n= Node.new
+    words = ["apple", "dog", "rhino"]
+    words.each do |word|
+      n.insert(word.chars)
+    end
+    assert_equal ["apple","dog","rhino"], n.get_words
+    4.times {n.select("dog")}
+    2.times {n.select("apple")}
+    assert_equal ["dog","apple","rhino"], n.get_words
   end
 
 end
