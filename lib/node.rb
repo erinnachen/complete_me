@@ -1,9 +1,9 @@
 class Node
   attr_reader :paths, :value
-  attr_accessor :weight
+  attr_accessor :weights
   def initialize
     @value = nil
-    @weight = 0
+    @weights = Hash.new(0)
     @paths = {}
   end
 
@@ -20,10 +20,10 @@ class Node
 
   def get_words_and_weights()
     if is_word? && paths.empty?
-      words = [[value, weight]]
+      words = [[value, weights]]
     else
       if is_word?
-        words = [[value, weight]]
+        words = [[value, weights]]
       else
         words = []
       end
@@ -34,9 +34,9 @@ class Node
     words
   end
 
-  def get_words()
-    wandws= get_words_and_weights()
-    sorted = wandws.sort_by {|wandw| -1*wandw[1]}
+  def get_words(substring = :default)
+    wandws = get_words_and_weights()
+    sorted = wandws.sort_by {|wandw| -1*wandw[1][substring]}
     sorted.map {|wandw| wandw[0]}
   end
 
@@ -49,9 +49,9 @@ class Node
     end
   end
 
-  def select(word)
+  def select(substring, word)
     n = traverse_to(word.chars)
-    n.weight+=1
+    n.weights[substring]+=1 if word.start_with?(substring)
   end
 
   def is_word?

@@ -76,7 +76,7 @@ class NodeTest < Minitest::Test
     word_arr = "dog".chars
     n.insert(word_arr)
     n.insert("cat".chars)
-    assert_equal [["dog", 0],["cat",0]], n.get_words_and_weights
+    assert_equal [["dog", {}],["cat",{}]], n.get_words_and_weights
   end
 
   def test_get_words_returns_all_words_on_an_overlapping_branch
@@ -106,6 +106,7 @@ class NodeTest < Minitest::Test
     assert_equal words.sort, n.get_words.sort
   end
 
+
   def test_traverse_to_a_single_word
     n = Node.new
     words = ["apple", "app", "after","bat", "batch", "baby","buns","dog","dot","doppler","docile"]
@@ -115,7 +116,7 @@ class NodeTest < Minitest::Test
     word_node = n.traverse_to("doppler".chars)
     assert word_node.is_word?
     assert_equal "doppler", word_node.value
-    assert_equal 0, word_node.weight
+    assert_equal 0, word_node.weights[:default]
   end
 
   def test_change_weight_on_specific_word
@@ -124,11 +125,43 @@ class NodeTest < Minitest::Test
     words.each do |word|
       n.insert(word.chars)
     end
-    n.select("doppler")
-    n.select("doppler")
+    n.select("","doppler")
+    n.select("","doppler")
     word_node = n.traverse_to("doppler".chars)
     assert_equal "doppler", word_node.value
-    assert_equal 2, word_node.weight
+    assert_equal 2, word_node.weights[""]
+  end
+
+  def test_does_not_change_the_weight_on_a_word_not_in_the_subtree
+    n= Node.new
+    words = ["apple", "app", "after","bat", "batch", "baby","buns","dog","dot","doppler","docile"]
+    words.each do |word|
+      n.insert(word.chars)
+    end
+    n.select("b","doppler")
+    n.select("d","doppler")
+    word_node = n.traverse_to("doppler".chars)
+    assert_equal "doppler", word_node.value
+    assert_equal 0, word_node.weights["b"]
+    assert_equal 1, word_node.weights["d"]
+  end
+
+  def test_word_has_different_weights_when_selected_with_different_substrings
+    n= Node.new
+    words = ["apple", "app", "after","bat", "batch", "baby","buns","dog","dot","doppler","docile"]
+    words.each do |word|
+      n.insert(word.chars)
+    end
+    n.select("b","doppler")
+    n.select("d","doppler")
+    n.select("d","doppler")
+    n.select("do","doppler")
+    n.select("dopp","doppler")
+    n.select("dop","doppler")
+    word_node = n.traverse_to("doppler".chars)
+    assert_equal 2, word_node.weights["d"]
+    assert_equal 1, word_node.weights["do"]
+    assert_equal 1, word_node.weights["dopp"]
   end
 
   def test_get_words_returns_words_sorted_by_weight_two_elements
@@ -138,9 +171,12 @@ class NodeTest < Minitest::Test
       n.insert(word.chars)
     end
     assert_equal ["apple","dog"], n.get_words
-    n.select("dog")
-    n.select("dog")
-    assert_equal ["dog","apple"], n.get_words
+    n.select("","dog")
+    n.select("","dog")
+    h = {''=>2}
+    assert_equal h, n.traverse_to("dog".chars).weights
+    assert n.traverse_to("apple".chars).weights.empty?
+    assert_equal ["dog","apple"], n.get_words("")
   end
 
   def test_get_words_returns_words_sorted_by_weight_three_elements
@@ -150,9 +186,29 @@ class NodeTest < Minitest::Test
       n.insert(word.chars)
     end
     assert_equal ["apple","dog","rhino"], n.get_words
-    4.times {n.select("dog")}
-    2.times {n.select("apple")}
-    assert_equal ["dog","apple","rhino"], n.get_words
+    4.times {n.select("","dog")}
+    2.times {n.select("","apple")}
+    assert_equal ["dog","apple","rhino"], n.get_words("")
+  end
+
+  def test_get_words_returns_words_sorted_by_weight_if_selected_with_different_substrings
+    n= Node.new
+    words = ["do","dog","doppler"]
+    words.each do |word|
+      n.insert(word.chars)
+    end
+    4.times {n.select("d","do")}
+    2.times {n.select("d","doppler")}
+    3.times {n.select("do","dog")}
+    2.times {n.select("do","do")}
+    n.select("do","doppler")
+    assert_equal ["do","doppler","dog"], n.get_words("d")
+    assert_equal ["dog","do","doppler"], n.get_words("do")
+
+  end
+
+  def test_should_check_if_traverse_returns_even_if_word_isnt_in_my_trie
+    skip
   end
 
 end

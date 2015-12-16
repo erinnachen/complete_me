@@ -15,7 +15,7 @@ class CompleteMe
 
   def suggest(word_begin)
     substring_node = find_node_to_search(word_begin)
-    substring_node.get_words
+    substring_node.get_words(word_begin)
   end
 
   def find_node_to_search(word_begin)
@@ -33,8 +33,6 @@ class CompleteMe
   end
 
   def select(substring, word_to_select)
-    substring_node = find_node_to_search(substring)
-    root.select(word_to_select)
-    substring_node.get_words
+    root.select(substring, word_to_select)
   end
 end
