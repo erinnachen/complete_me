@@ -1,6 +1,6 @@
 class Trie
-  attr_reader :paths, :value
-  attr_reader :weights
+  attr_reader :paths, :value, :weights
+
   def initialize
     @value = nil
     @weights = Hash.new(0)
@@ -31,13 +31,17 @@ class Trie
     words_and_weights
   end
 
+  def get_words_sorted_by_weight(word_begin)
+    sorted_by_weight = get_words_and_weights.sort_by do |wandw|
+      -1*wandw[1][word_begin]
+    end
+    sorted_by_weight.map {|wandw| wandw[0]}
+  end
+
   def suggest(word_begin)
     sub_trie = traverse_to(word_begin.chars)
     if sub_trie
-      sorted_by_weight = sub_trie.get_words_and_weights.sort_by do |wandw|
-        -1*wandw[1][word_begin]
-      end
-      sorted_by_weight.map {|wandw| wandw[0]}
+      sub_trie.get_words_sorted_by_weight(word_begin)
     else
       []
     end
@@ -59,8 +63,8 @@ class Trie
   end
 
   def select(substring, word)
-    n = traverse_to(word.chars)
-    n.weights[substring]+=1 if word.start_with?(substring)
+    sub_trie = traverse_to(word.chars)
+    sub_trie.weights[substring]+=1 if word.start_with?(substring)
   end
 
 end
